@@ -1,0 +1,16 @@
+{
+  "name": "hlsavegameapi",
+  "version": "0.0.1",
+  "description": "Get SQLite file from HL savegame.",
+  "main": "server.js",
+  "scripts": {
+    "test": "node server.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "koffi": "^2.5.12",
+    "multer": "^1.4.5-lts.1"
+  }
+}
