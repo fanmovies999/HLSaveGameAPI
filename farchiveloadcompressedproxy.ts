@@ -1,29 +1,36 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.FArchiveLoadCompressedProxy = void 0;
-const farchive_js_1 = require("./farchive.js");
-const constants_js_1 = require("./constants.js");
-class FArchiveLoadCompressedProxy extends farchive_js_1.FArchive {
-    //private readonly _compressionFlags: ECompressionFlags;
+import { FArchive } from './farchive.js';
+import { LOADING_COMPRESSION_CHUNK_SIZE } from './constants.js';
+
+
+export class FArchiveLoadCompressedProxy extends FArchive {
+    private readonly _compressedData: Buffer;
+    private _currentIndex: number;
+    private readonly _tmpData: Buffer;
+    private _tmpDataPos: number;
+    private _tmpDataSize: number;
+    private _shouldSerializeFromArray: boolean;
+    private _rawBytesSerialized: number;
+
     /**
      * Constructor
-     *
+     * 
      * @param {Buffer} compressedData - Buffer that contains the compressed data.
      */
-    constructor(compressedData) {
+    constructor(compressedData: Buffer) {
         super();
+
         this._compressedData = compressedData;
-        this._compressionFormat = "Oodle";
-        //this._compressionFlags = flags;
-        this._tmpData = Buffer.alloc(constants_js_1.LOADING_COMPRESSION_CHUNK_SIZE);
-        this._tmpDataPos = constants_js_1.LOADING_COMPRESSION_CHUNK_SIZE;
-        this._tmpDataSize = constants_js_1.LOADING_COMPRESSION_CHUNK_SIZE;
+
+        this._tmpData = Buffer.alloc(LOADING_COMPRESSION_CHUNK_SIZE);
+        this._tmpDataPos = LOADING_COMPRESSION_CHUNK_SIZE;
+        this._tmpDataSize = LOADING_COMPRESSION_CHUNK_SIZE;
+
         this._currentIndex = 0;
         this._shouldSerializeFromArray = false;
         this._rawBytesSerialized = 0;
     }
 }
-exports.FArchiveLoadCompressedProxy = FArchiveLoadCompressedProxy;
+
 /*
 class FArchiveLoadCompressedProxy extends FArchive {
     constructor(name, compressedData, compressionFormat, flags = CompressionFlags.COMPRESS_None, versions) {
@@ -127,4 +134,4 @@ class FArchiveLoadCompressedProxy extends FArchive {
 }
 
 module.exports = { FArchiveLoadCompressedProxy };
-*/ 
+*/

@@ -24,7 +24,11 @@ container_stop:
 # for local computer
 prepare:
 	npm install
+	npx tsc
+
+run_server:
+	LD_LIBRARY_PATH=. node server.js
 
 test:
-	LD_LIBRARY_PATH=. node server.js
+	curl --location 'http://localhost:${PORT}/getRawDatabaseImage' --form "file=@"../savegame/HL-01-00.sav""
  

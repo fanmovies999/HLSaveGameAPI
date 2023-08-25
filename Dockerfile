@@ -1,3 +1,4 @@
+# change image this one is too big.
 FROM node:20
 
 # Create app directory

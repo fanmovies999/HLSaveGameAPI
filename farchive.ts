@@ -1,12 +1,11 @@
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.FArchive = void 0;
-class FArchive {
-    constructor() {
+export class FArchive{
+    constructor(){
         console.log('FArchive');
     }
-}
-exports.FArchive = FArchive;
+} 
+
+
+
 /*
 const fs = require('fs');
 
@@ -200,4 +199,4 @@ function SerializeCompressedNew(dest, length, compressionFormatToDecodeOldV1File
         destPos += chunk.CompressedSize;
     }
 }
-*/ 
+*/

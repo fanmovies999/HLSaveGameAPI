@@ -1,4 +1,5 @@
 {
+    "version": "2.0.0",
     "tasks": [
         {
             "type": "npm",
@@ -10,6 +11,25 @@
             "problemMatcher": [],
             "label": "npm: install",
             "detail": "install dependencies from package"
-        }
+        },
+        {
+            "type": "typescript",
+            "tsconfig": "tsconfig.json",
+            "problemMatcher": ["$tsc"],
+            "group": {
+              "kind": "build",
+              "isDefault": true
+            },
+            "label": "tsc: build"
+        },
+        {
+            "label": "Build",
+            "dependsOrder": "sequence",
+            "dependsOn":[
+                "npm: install",
+                "tsc: build"
+            ]
+    
+        } 
     ]
 }
