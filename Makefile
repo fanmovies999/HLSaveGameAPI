@@ -32,3 +32,5 @@ run_server:
 test:
 	curl --location 'http://localhost:${PORT}/getRawDatabaseImage' --form "file=@"../savegame/HL-01-00.sav""
  
+ test_loop:
+	bash -c "while true; do r=$$(( RANDOM % 15 )); curl --location 'http://localhost:8080/getRawDatabaseImage' --form \"file=@\"../savegame/HL-01-$$(printf "%02d" $$r).sav\"\" ; sleep 1s; done "
