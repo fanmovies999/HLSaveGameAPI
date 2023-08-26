@@ -27,7 +27,7 @@ prepare:
 	npx tsc
 
 run_server:
-	LD_LIBRARY_PATH=. node server.js
+	LD_LIBRARY_PATH=. node dist/server.js
 
 test:
 	curl --location 'http://localhost:${PORT}/getRawDatabaseImage' --form "file=@"../savegame/HL-01-00.sav""
