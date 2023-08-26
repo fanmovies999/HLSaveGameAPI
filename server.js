@@ -5,9 +5,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const multer_1 = __importDefault(require("multer"));
-const farchiveloadcompressedproxy_js_1 = require("./farchiveloadcompressedproxy.js");
-const oodledecompress_js_1 = require("./oodledecompress.js");
-const constants_js_1 = require("./constants.js");
+const farchiveloadcompressedproxy_1 = require("./farchiveloadcompressedproxy");
+const oodledecompress_1 = require("./oodledecompress");
+const constants_1 = require("./constants");
 // Parameters for web server
 const PORT = 8080;
 const HOST = '0.0.0.0';
@@ -70,7 +70,7 @@ app.post('/getRawDatabaseImage', (0, multer_1.default)({ storage: multer_1.defau
         }
         // we have a compressed file  in image
         // res.send(image);  // output compressed file for debug.
-        var proxy = new farchiveloadcompressedproxy_js_1.FArchiveLoadCompressedProxy(image);
+        var proxy = new farchiveloadcompressedproxy_1.FArchiveLoadCompressedProxy(image);
         var i = 0; // index on image
         i += 16; // 16 bytes = header (compress tag ....)
         // 16 bytes = summary (int64 = compressedsize, int64 = uncompressedsize)
@@ -79,7 +79,7 @@ app.post('/getRawDatabaseImage', (0, multer_1.default)({ storage: multer_1.defau
         var uncompressedSize = image.readBigInt64LE(i);
         i += 8;
         // several 16 bytes for the chunks  => check if compressed side from summary could be enough.
-        var totalChunkCount = (uncompressedSize + BigInt(constants_js_1.LOADING_COMPRESSION_CHUNK_SIZE - 1)) / BigInt(constants_js_1.LOADING_COMPRESSION_CHUNK_SIZE);
+        var totalChunkCount = (uncompressedSize + BigInt(constants_1.LOADING_COMPRESSION_CHUNK_SIZE - 1)) / BigInt(constants_1.LOADING_COMPRESSION_CHUNK_SIZE);
         var totalCompressedSize = BigInt(0);
         var totalUncompressedSize = BigInt(0);
         for (var chunkIndex = 0; chunkIndex < totalChunkCount; chunkIndex++) {
@@ -91,7 +91,7 @@ app.post('/getRawDatabaseImage', (0, multer_1.default)({ storage: multer_1.defau
         // uncompress buffer from i to totalCompressedSize 
         var uncompressed = Buffer.alloc(Number(totalUncompressedSize));
         var outputMessage = "";
-        var result = (0, oodledecompress_js_1.Decompress)(image.subarray(i, Number(compressedSize) + i), Number(totalCompressedSize), uncompressed, Number(totalUncompressedSize), outputMessage);
+        var result = (0, oodledecompress_1.Decompress)(image.subarray(i, Number(compressedSize) + i), Number(totalCompressedSize), uncompressed, Number(totalUncompressedSize), outputMessage);
         if (result <= 0) {
             res.status(422).send("Bad size, " + outputMessage);
             return;
@@ -103,7 +103,7 @@ app.post('/getRawDatabaseImage', (0, multer_1.default)({ storage: multer_1.defau
         // uncompress the image.
         var uncompressedImage = Buffer.alloc(uncompressedImageSize);
         outputMessage = "";
-        result = (0, oodledecompress_js_1.Decompress)(image, image.length, uncompressedImage, uncompressedImageSize, outputMessage);
+        result = (0, oodledecompress_1.Decompress)(image, image.length, uncompressedImage, uncompressedImageSize, outputMessage);
         res.send('OK');
     }
     else {

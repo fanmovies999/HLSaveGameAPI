@@ -4,7 +4,6 @@ exports.FArchiveLoadCompressedProxy = void 0;
 const farchive_js_1 = require("./farchive.js");
 const constants_js_1 = require("./constants.js");
 class FArchiveLoadCompressedProxy extends farchive_js_1.FArchive {
-    //private readonly _compressionFlags: ECompressionFlags;
     /**
      * Constructor
      *
@@ -13,8 +12,6 @@ class FArchiveLoadCompressedProxy extends farchive_js_1.FArchive {
     constructor(compressedData) {
         super();
         this._compressedData = compressedData;
-        this._compressionFormat = "Oodle";
-        //this._compressionFlags = flags;
         this._tmpData = Buffer.alloc(constants_js_1.LOADING_COMPRESSION_CHUNK_SIZE);
         this._tmpDataPos = constants_js_1.LOADING_COMPRESSION_CHUNK_SIZE;
         this._tmpDataSize = constants_js_1.LOADING_COMPRESSION_CHUNK_SIZE;

@@ -3,9 +3,9 @@
 import express from 'express';
 import multer  from 'multer';
 
-import { FArchiveLoadCompressedProxy } from './farchiveloadcompressedproxy.js';
-import { Decompress } from './oodledecompress.js';
-import { LOADING_COMPRESSION_CHUNK_SIZE } from './constants.js';
+import { FArchiveLoadCompressedProxy } from './farchiveloadcompressedproxy';
+import { Decompress } from './oodledecompress';
+import { LOADING_COMPRESSION_CHUNK_SIZE } from './constants';
 
 // Parameters for web server
 const PORT = 8080;
