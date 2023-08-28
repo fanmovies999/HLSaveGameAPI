@@ -11,7 +11,26 @@
             "skipFiles": [
                 "<node_internals>/**"
             ],
-            "program": "${workspaceFolder}/server.js",
+            "program": "${workspaceFolder}/dist/server.js",
+            "env": {
+                "LD_LIBRARY_PATH": "."
+            },
+            "preLaunchTask": "Build",
+            "outFiles": [
+                "${workspaceFolder}/**/*.js",
+                "!**/node_modules/**"
+            ],
+            "sourceMaps": true
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "name": "Launch LLDB",
+            "program": "node",
+            "args": [
+                "${workspaceFolder}/dist/server.js"
+            ],
+            "cwd": "${workspaceFolder}",
             "env": {
                 "LD_LIBRARY_PATH": "."
             },

@@ -2,10 +2,8 @@
 
 import express from 'express';
 import multer  from 'multer';
-
+import { Buffer } from 'node:buffer';
 import { FArchiveLoadCompressedProxy } from './farchiveloadcompressedproxy';
-import { Decompress } from './oodledecompress';
-import { LOADING_COMPRESSION_CHUNK_SIZE } from './constants';
 
 // Parameters for web server
 const PORT = 8080;
@@ -51,7 +49,7 @@ app.post('/getRawDatabaseImage', multer({storage: multer.memoryStorage()}).singl
     rdi += 4;
     // Get the image
     var image = req.file.buffer.subarray(rdi, rdi + rdi_length);
-
+    
     // Check that we read get the image correctly.
     if (image.length != rdi_length){
       res.status(422).send('Length should by '+rdi_length+' but get '+image.length);
@@ -77,50 +75,11 @@ app.post('/getRawDatabaseImage', multer({storage: multer.memoryStorage()}).singl
     // we have a compressed file  in image
     // res.send(image);  // output compressed file for debug.
 
-    var proxy = new FArchiveLoadCompressedProxy(image);
+    var proxy = new FArchiveLoadCompressedProxy(req.file.originalname, image);
+    var uncompressed = proxy.ReadBuffer();
 
-
-
-    
-    var i = 0; // index on image
-    i+= 16; // 16 bytes = header (compress tag ....)
-    // 16 bytes = summary (int64 = compressedsize, int64 = uncompressedsize)
-    var compressedSize = image.readBigInt64LE(i); i+=8;
-    var uncompressedSize = image.readBigInt64LE(i); i+=8;
-
-    // several 16 bytes for the chunks  => check if compressed side from summary could be enough.
-    var totalChunkCount = (uncompressedSize + BigInt(LOADING_COMPRESSION_CHUNK_SIZE - 1)) / BigInt(LOADING_COMPRESSION_CHUNK_SIZE);
-    var totalCompressedSize = BigInt(0);
-    var totalUncompressedSize = BigInt(0);
-    for (var chunkIndex = 0; chunkIndex < totalChunkCount; chunkIndex++){
-      totalCompressedSize += image.readBigInt64LE(i); i+=8;
-      totalUncompressedSize += image.readBigInt64LE(i); i+=8;
-    } 
-
-    // uncompress buffer from i to totalCompressedSize 
-    var uncompressed = Buffer.alloc(Number(totalUncompressedSize));
-    var outputMessage = "";
-    var result = Decompress (image.subarray(i, Number(compressedSize)+i) , Number(totalCompressedSize), uncompressed, Number(totalUncompressedSize), outputMessage);
-
-    if (result <= 0){
-      res.status(422).send("Bad size, "+outputMessage);
-      return;
-    } 
-
-    // get first 4 bytes as int32 = uncompressed size of image
-    var uncompressedImageSize = uncompressed.readInt32LE(0);
-    var compressedImageSize = uncompressed.readInt32LE(4);
-    console.log(uncompressedImageSize +" "+compressedImageSize);
- 
-
-    // uncompress the image.
-    var uncompressedImage = Buffer.alloc(uncompressedImageSize);
-    outputMessage = "";
-    result = Decompress (image, image.length, uncompressedImage, uncompressedImageSize, outputMessage);
-
-
-
-    
+    console.log(uncompressed.subarray(0, 10));
+        
 
     res.send('OK');
   } else{

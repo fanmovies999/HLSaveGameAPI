@@ -1,10 +1,11 @@
 import koffi from 'koffi';
 
 // Load the shared library
-const oo2core = koffi.load('liboo2corelinux64.so.9');
+const oo2core = koffi.load('liboo2corelinux64_dbg.so.9');
+//const oo2core = koffi.load('liboo2corelinux64.so.9');
 
 const OodleLZ_Decompress = oo2core.func('long OodleLZ_Decompress(const void * compBuf, long compBufSize,\
-  void * rawBuf,  long rawLen, \
+  _Inout_ void * rawBuf,  long rawLen, \
   int a,\
   int b,\
   int c,\
@@ -16,6 +17,7 @@ const OodleLZ_Decompress = oo2core.func('long OodleLZ_Decompress(const void * co
   long i,\
   int threadPhase )');
 
+
 /**
  * 
  * @param {Buffer} compressed 
@@ -25,12 +27,16 @@ const OodleLZ_Decompress = oo2core.func('long OodleLZ_Decompress(const void * co
  * @param {string} outputMessage 
  * @returns -1 on error, size of decompress result otherwise
  */
-export function Decompress (compressed: Buffer, compressedSize: number, uncompressed: Buffer, uncompressedSize: number, outputMessage: string){   
+export function OodleDecompress (compressed: Buffer, compressedSize: number, uncompressed: Buffer, uncompressedSize: number, outputMessage: string){   
     // create uncompressed buffer for result
     //let uncompressed = Buffer.alloc(uncompressedSize);
-
+    
+    let src = Uint8Array.from(compressed);
+    let dest = new Uint8Array(uncompressedSize);
     // uncompressed ...
-    let res = OodleLZ_Decompress(compressed, compressedSize, uncompressed, uncompressedSize, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3);
+    let res = OodleLZ_Decompress(src, src.length, dest, dest.length, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3);
+    
+    //uncompressed = Buffer.from(dest);
 
     // decompress error
     if (res <= 0){
@@ -47,4 +53,3 @@ export function Decompress (compressed: Buffer, compressedSize: number, uncompre
     
     return res;
 } 
-

@@ -1,6 +1,6 @@
 import { FArchive } from './farchive.js';
 import { LOADING_COMPRESSION_CHUNK_SIZE } from './constants.js';
-
+import { Buffer } from 'node:buffer';
 
 export class FArchiveLoadCompressedProxy extends FArchive {
     private readonly _compressedData: Buffer;
@@ -14,10 +14,11 @@ export class FArchiveLoadCompressedProxy extends FArchive {
     /**
      * Constructor
      * 
+     * @param {string} name - Name of the savegame file.
      * @param {Buffer} compressedData - Buffer that contains the compressed data.
      */
-    constructor(compressedData: Buffer) {
-        super();
+    constructor(name: string, compressedData: Buffer) {
+        super(name);
 
         this._compressedData = compressedData;
 
@@ -29,109 +30,64 @@ export class FArchiveLoadCompressedProxy extends FArchive {
         this._shouldSerializeFromArray = false;
         this._rawBytesSerialized = 0;
     }
-}
 
-/*
-class FArchiveLoadCompressedProxy extends FArchive {
-    constructor(name, compressedData, compressionFormat, flags = CompressionFlags.COMPRESS_None, versions) {
-        super(versions);
-        this.Name = name;
-        this._compressedData = compressedData;
-        this._compressionFormat = compressionFormat;
-        this._compressionFlags = flags;
-        this._currentIndex = 0;
-        this._tmpData = Buffer.alloc(LOADING_COMPRESSION_CHUNK_SIZE);
-        this._tmpDataPos = LOADING_COMPRESSION_CHUNK_SIZE;
-        this._tmpDataSize = LOADING_COMPRESSION_CHUNK_SIZE;
-        this._shouldSerializeFromArray = false;
-        this._rawBytesSerialized = 0;
-    }
 
-    clone() {
-        return new FArchiveLoadCompressedProxy(this.Name, this._compressedData, this._compressionFormat, this._compressionFlags, this.versions);
-    }
+    public override Read(offset: number, count: number): Buffer {
+        var dstData = Buffer.alloc(count);
 
-    read(dstData, offset, count) {
-        if (this._shouldSerializeFromArray) {
+        if (this._shouldSerializeFromArray)
+        {
             // SerializedCompressed reads the compressed data from here
-            assert(this._currentIndex + count <= this._compressedData.length);
-            this._compressedData.copy(dstData, 0, this._currentIndex, this._currentIndex + count);
+            this._compressedData.copy(dstData, 0, this._currentIndex, this._currentIndex + count -1 );
             this._currentIndex += count;
-            return count;
-        } else {
-            let dstPos = 0;
-            while (count > 0) {
-                const bytesToCopy = Math.min(count, this._tmpDataSize - this._tmpDataPos);
+            return dstData;
+        }
+        // Regular call to serialize, read from temp buffer
+        else
+        {
+            var dstPos = 0;
+            while (count > 0)
+            {
+                var bytesToCopy = Math.min(count, this._tmpDataSize - this._tmpDataPos);
                 // Enough room in buffer to copy some data.
-                if (bytesToCopy > 0) {
-                    // We pass in a NULL pointer when forward seeking. In that case we don't want
-                    // to copy the data but only care about pointing to the proper spot.
-                    if (dstData !== null) {
-                        this._tmpData.copy(dstData, dstPos, this._tmpDataPos, this._tmpDataPos + bytesToCopy);
-                        dstPos += bytesToCopy;
-                    }
+                if (bytesToCopy > 0)
+                {
+                    dstData = Buffer.concat([dstData, this._tmpData.subarray(this._tmpDataPos, bytesToCopy)]);
+                    dstPos += bytesToCopy;
                     count -= bytesToCopy;
                     this._tmpDataPos += bytesToCopy;
                     this._rawBytesSerialized += bytesToCopy;
-                } else {
-                    // Tmp buffer fully exhausted, decompress new one.
+                }
+                // Tmp buffer fully exhausted, decompress new one.
+                else
+                {
                     // Decompress more data. This will call Serialize again so we need to handle recursion.
-                    this.decompressMoreData();
+                    this.DecompressMoreData();
 
-                    if (this._tmpDataSize === 0) {
+                    if (this._tmpDataSize == 0)
+                    {
                         // wanted more but couldn't get any
                         // avoid infinite loop
-                        throw new Error('ParserException');
+                        throw new Error("ParserException");
                     }
                 }
             }
-
-            return dstPos;
         }
+
+        return dstData;    
     }
 
-    seek(offset, origin) {
-        assert(origin === 'begin');
-        const currentPos = this.position;
-        const difference = offset - currentPos;
-        // We only support forward seeking.
-        assert(difference >= 0);
-        // Seek by serializing data, albeit with NULL destination so it's just decompressing data.
-        this.read(null, 0, difference);
-        return this.position;
-    }
-
-    get canSeek() {
-        return true;
-    }
-
-    get length() {
-        throw new Error('InvalidOperationException');
-    }
-
-    get position() {
-        return this._rawBytesSerialized;
-    }
-
-    set position(value) {
-        this.seek(value, 'begin');
-    }
-
-    decompressMoreData() {
+    private DecompressMoreData() 
+    {
         // This will call Serialize so we need to indicate that we want to serialize from array.
         this._shouldSerializeFromArray = true;
-        const [decompressedLength] = Compression.serializeCompressedNew(
-            this._tmpData, LOADING_COMPRESSION_CHUNK_SIZE, this._compressionFormat, this._compressionFlags, false
-        );
+        this._tmpData.copy(this.SerializeCompressedNew(LOADING_COMPRESSION_CHUNK_SIZE));
         // last chunk will be partial :
-        // all chunks before last should have size == LOADING_COMPRESSION_CHUNK_SIZE
-        assert(decompressedLength <= LOADING_COMPRESSION_CHUNK_SIZE);
+        //	all chunks before last should have size == LOADING_COMPRESSION_CHUNK_SIZE
         this._shouldSerializeFromArray = false;
         // Buffer is filled again, reset.
         this._tmpDataPos = 0;
-        this._tmpDataSize = decompressedLength;
+        this._tmpDataSize = this._tmpData.length;
     }
-}
 
-module.exports = { FArchiveLoadCompressedProxy };
-*/
+}
