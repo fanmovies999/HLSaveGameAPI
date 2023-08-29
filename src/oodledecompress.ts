@@ -6,15 +6,15 @@ const oo2core = koffi.load('liboo2corelinux64_dbg.so.9');
 
 const OodleLZ_Decompress = oo2core.func('long OodleLZ_Decompress(const void * compBuf, long compBufSize,\
   _Inout_ void * rawBuf,  long rawLen, \
-  int a,\
-  int b,\
-  int c,\
-  long d,\
-  long e,\
-  long f,\
-  long g,\
-  long h,\
-  long i,\
+  int fuzzSafe,\
+  int checkCRC,\
+  int verbose,\
+  void * v_decBufBase,\
+  long decBufSize,\
+  void * fpCallback,\
+  void * callbackUserData,\
+  void * decoderMemory,\
+  long decoderMemorySize,\
   int threadPhase )');
 
 
