@@ -60,7 +60,7 @@ export abstract class FArchive {
         var dest = Buffer.alloc(length);
        
         // Variables from parameters (that we don't use)
-        var compressionFormatToDecodeOldV1Files = "Oolde";
+        var compressionFormatToDecodeOldV1Files = "Oodle";
         var flags = "COMPRESS_None" ; // ECompressionFlags 
         var bTreatBufferAsFileReader = false;
         var outPartialReadLength = 0n; // output length
