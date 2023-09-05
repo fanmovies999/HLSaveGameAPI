@@ -1,5 +1,5 @@
 import { LOADING_COMPRESSION_CHUNK_SIZE, LOADING_COMPRESSION_CHUNK_SIZEn, PACKAGE_FILE_TAG, PACKAGE_FILE_TAG_SWAPPED, ARCHIVE_V2_HEADER_TAG } from './constants.js';
-import { OodleDecompress } from './oodledecompress.js';
+import { OodleDecompress, OodleInit } from './oodledecompress.js';
 import { Buffer } from 'node:buffer';
 
 const bigIntMax = (args : any[]) => args.reduce((m, e) => e > m ? e : m);
@@ -20,6 +20,9 @@ export abstract class FArchive {
 
     constructor(name: string){
         this._name = name;
+
+        // init oodle library
+        OodleInit();
     }
 
     public Name() : string {

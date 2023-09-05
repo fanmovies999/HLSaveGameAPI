@@ -4,6 +4,25 @@ import koffi from 'koffi';
 const oo2core = koffi.load('liboo2corelinux64_dbg.so.9');
 //const oo2core = koffi.load('liboo2corelinux64.so.9');
 
+
+// Struct config
+const OodleConfigValues = koffi.struct('OodleConfigValues', {
+    m_OodleLZ_LW_LRM_step: 'int',
+    m_OodleLZ_LW_LRM_hashLength: 'int',
+    m_OodleLZ_LW_LRM_jumpbits: 'int',
+    m_OodleLZ_Decoder_Max_Stack_Size: 'int',
+    m_OodleLZ_Small_Buffer_LZ_Fallback_Size_Unused: 'int',
+    m_OodleLZ_BackwardsCompatible_MajorVersion: 'int',
+    m_oodle_header_version: 'int'
+});
+
+
+// settings
+const Oodle_GetConfigValues = oo2core.func('void Oodle_GetConfigValues(_Out_ OodleConfigValues * configValues)');
+const Oodle_SetConfigValues = oo2core.func('void Oodle_SetConfigValues(OodleConfigValues * configValues)');
+
+
+// Decompress function
 const OodleLZ_Decompress = oo2core.func('long OodleLZ_Decompress(const void * compBuf, long compBufSize,\
   _Inout_ void * rawBuf,  long rawLen, \
   int fuzzSafe,\
@@ -16,6 +35,7 @@ const OodleLZ_Decompress = oo2core.func('long OodleLZ_Decompress(const void * co
   void * decoderMemory,\
   long decoderMemorySize,\
   int threadPhase )');
+
 
 
 /**
@@ -53,3 +73,20 @@ export function OodleDecompress (compressed: Buffer, compressedSize: number, unc
     
     return res;
 } 
+
+export function OodleInit() {
+    let configValues = {
+        m_OodleLZ_LW_LRM_step: 0,
+        m_OodleLZ_LW_LRM_hashLength: 0,
+        m_OodleLZ_LW_LRM_jumpbits: 0,
+        m_OodleLZ_Decoder_Max_Stack_Size: 0,
+        m_OodleLZ_Small_Buffer_LZ_Fallback_Size_Unused: 0,
+        m_OodleLZ_BackwardsCompatible_MajorVersion: 0,
+        m_oodle_header_version: 0
+    };
+
+    Oodle_GetConfigValues(configValues);
+    console.log(configValues);
+    configValues.m_OodleLZ_BackwardsCompatible_MajorVersion = 9;
+    Oodle_SetConfigValues(configValues);
+}
