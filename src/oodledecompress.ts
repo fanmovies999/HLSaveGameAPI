@@ -34,7 +34,7 @@ export function OodleDecompress (compressed: Buffer, compressedSize: number, unc
     let src = Uint8Array.from(compressed);
     let dest = new Uint8Array(uncompressedSize);
     // uncompressed ...
-    let res = OodleLZ_Decompress(src, src.length, dest, dest.length, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0);
+    let res = OodleLZ_Decompress(src, src.length, dest, dest.length, 1, 0, 3, 0, 0, 0, 0, 0, 0, 3);
     
     uncompressed = Buffer.from(dest);
 
